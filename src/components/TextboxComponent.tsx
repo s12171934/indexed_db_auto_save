@@ -1,9 +1,11 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import './TextboxComponent.css';
+import { useDebounce } from '../hooks/useDebounce';
 
-function TextboxComponent() {
+const TextboxComponent: React.FC = () => {
   const [text, setText] = useState<string>('');
   const isFirstRender = useRef(true);
+  const textRef = useRef<string>('');
 
   // 1. 컴포넌트 마운트 시 실행 (한 번만)
   useEffect(() => {
@@ -16,18 +18,26 @@ function TextboxComponent() {
     };
   }, []); // 빈 의존성 배열 = 마운트/언마운트 시에만 실행
 
-  // 2. text 상태가 변경될 때마다 실행 (마운트 시 제외)
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return; // 첫 번째 렌더링 시에는 실행하지 않음
-    }
-    console.log('텍스트가 변경되었습니다:', text);
+    textRef.current = text;
   }, [text]);
 
-  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value);
-  };
+  // 콜백 함수를 안정적으로 유지 (의존성 배열 비움)
+  const debouncedSave = useCallback(() => {
+    console.log(textRef.current);
+  }, []); // 의존성 배열을 비워서 안정적 유지
+
+  useDebounce(
+    debouncedSave,
+    1000,
+    !isFirstRender.current, // 첫 렌더링이 아닐 때만 활성화
+    [text]
+  );
+
+  // 첫 렌더링 완료 후 플래그 업데이트
+  useEffect(() => {
+    isFirstRender.current = false;
+  }, []);
 
   return (
     <>
@@ -40,11 +50,11 @@ function TextboxComponent() {
           className="textbox-input"
           placeholder="Enter your text here"
           value={text}
-          onChange={handleChange}
+          onChange={e => setText(e.target.value)}
         />
       </div>
     </>
   );
-}
+};
 
 export default TextboxComponent;
