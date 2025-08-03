@@ -1,13 +1,13 @@
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from '../store/store';
+import { useDispatch } from 'react-redux';
 import { useCallback } from 'react';
 import indexedDBRepository from '../db/indexed-db.repository';
 import { setServerSaveText } from '../store/reducers/server-save.reducer';
 import { useDebounce } from './useDebounce';
 import { environment } from '../environments/environment';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 export const useAutoSave = () => {
-  const debounced_text = useSelector((state: RootState) => state.autoSave.text);
+  const debounced_text = useLiveQuery(() => indexedDBRepository.getText());
   const dispatch = useDispatch();
 
   const debouncedSave = useCallback(async () => {
