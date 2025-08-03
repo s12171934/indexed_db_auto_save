@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import './TextboxComponent.css';
 import { useDebounce } from '../hooks/useDebounce';
+import { useAutoSave } from '../hooks/useAutoSave';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../store/store';
 import {
@@ -47,6 +48,8 @@ const TextboxComponent: React.FC = () => {
     !isFirstRender.current,
     [text]
   );
+
+  useAutoSave();
 
   useEffect(() => {
     isFirstRender.current = false;
