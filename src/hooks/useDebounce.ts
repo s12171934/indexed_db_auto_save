@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react';
 import type { DependencyList } from 'react';
 import _ from 'lodash';
+import { useEffectWithoutMount } from './useEffectWithoutMount';
 
 export const useDebounce = <T extends any[]>(
   callback: (...args: T) => void,
   delay: number,
-  dependencies: DependencyList
+  dependencies: DependencyList,
+  isWithoutFirstRender: boolean = true
 ) => {
   const debounceRef = useRef<_.DebouncedFunc<(...args: any[]) => void> | null>(
     null
@@ -23,9 +25,17 @@ export const useDebounce = <T extends any[]>(
     };
   }, [delay]);
 
-  useEffect(() => {
-    if (debounceRef.current) {
-      debounceRef.current();
-    }
-  }, dependencies);
+  if (isWithoutFirstRender) {
+    useEffectWithoutMount(() => {
+      if (debounceRef.current) {
+        debounceRef.current();
+      }
+    }, dependencies);
+  } else {
+    useEffect(() => {
+      if (debounceRef.current) {
+        debounceRef.current();
+      }
+    }, dependencies);
+  }
 };

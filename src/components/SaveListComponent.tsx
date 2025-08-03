@@ -1,34 +1,28 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import './SaveListComponent.css';
 import indexedDBRepository from '../db/indexed-db.repository';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../store/store';
 import ListComponent from './ListComponent';
+import { useEffectWithoutMount } from '../hooks';
 
 const SaveListComponent: React.FC = () => {
-  const isFirstRender = useRef(true);
   const saveList = useLiveQuery(() => indexedDBRepository.getList());
   const [serverSaveList, setServerSaveList] = useState<string[]>([]);
   const serverSaveText = useSelector(
     (state: RootState) => state.serverSave.text
   );
 
-  useEffect(() => {
-    isFirstRender.current = true;
-  }, []);
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    setServerSaveList([serverSaveText, ...serverSaveList]);
-  }, [serverSaveText]);
-
-  useEffect(() => {
-    isFirstRender.current = false;
-  }, []);
+  useEffectWithoutMount(
+    () => {
+      if (serverSaveText) {
+        setServerSaveList([serverSaveText, ...serverSaveList]);
+      }
+    },
+    [serverSaveText],
+    serverSaveText === null
+  );
 
   return (
     <div className="save-list-container">

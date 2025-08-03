@@ -2,11 +2,11 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 
 interface ServerSaveSlice {
-  text: string;
+  text: string | null;
 }
 
 const initialState: ServerSaveSlice = {
-  text: '',
+  text: null,
 };
 
 const serverSaveSlice = createSlice({
