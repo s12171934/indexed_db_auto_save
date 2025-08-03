@@ -1,16 +1,16 @@
 import './IndexedDBComponent.css';
-import { db } from '../db/indexed-db';
-import { useLiveQuery } from 'dexie-react-hooks';
+import indexedDBRepository from '../db/indexed-db.repository';
 import { useState } from 'react';
 
 const IndexedDBComponent = () => {
   const [text, setText] = useState<string>('');
-  const indexedDBText = useLiveQuery(() =>
-    db.text.toArray().then(res => res[res.length - 1])
-  );
 
   const clickSave = async () => {
-    db.text.add({ text });
+    await indexedDBRepository.setText(text);
+  };
+
+  const clickRemoveOldData = async () => {
+    await indexedDBRepository.removeOldData();
   };
 
   return (
@@ -18,13 +18,15 @@ const IndexedDBComponent = () => {
       <button className="indexeddb-button" onClick={clickSave}>
         Save to IndexedDB
       </button>
+      <button className="indexeddb-button" onClick={clickRemoveOldData}>
+        Remove old data
+      </button>
       <input
         className="indexeddb-textbox"
         type="text"
         value={text}
         onChange={e => setText(e.target.value)}
       />
-      <p className="indexeddb-text">{indexedDBText?.text}</p>
     </div>
   );
 };

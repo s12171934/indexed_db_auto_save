@@ -1,5 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import indexedDBRepository from '../../db/indexed-db.repository';
 
 interface AutoSaveSlice {
   text: string;
@@ -7,9 +8,23 @@ interface AutoSaveSlice {
   status: 'idle' | 'loading' | 'success' | 'error';
 }
 
+const getIndexedDBText = async () => {
+  const text = await indexedDBRepository.getText();
+  // 빈 문자열이어도 정상적으로 반환
+  return text || '';
+};
+
+const loadInitialText = createAsyncThunk(
+  'autoSave/loadInitialText',
+  async () => {
+    const text = await getIndexedDBText();
+    return text;
+  }
+);
+
 const initialState: AutoSaveSlice = {
-  text: 'test-text',
-  debouncedText: 'test-text',
+  text: '',
+  debouncedText: '',
   status: 'idle',
 };
 
@@ -19,10 +34,24 @@ const autoSaveSlice = createSlice({
   reducers: {
     setDebouncedText: (state, action: PayloadAction<string>) => {
       state.text = action.payload;
-      console.log('debounced-1st-Save', state.text);
+      indexedDBRepository.setText(action.payload);
     },
+  },
+  extraReducers: builder => {
+    builder.addCase(loadInitialText.pending, state => {
+      state.status = 'loading';
+    });
+    builder.addCase(loadInitialText.fulfilled, (state, action) => {
+      state.status = 'success';
+      state.text = action.payload;
+      state.debouncedText = action.payload;
+    });
+    builder.addCase(loadInitialText.rejected, state => {
+      state.status = 'error';
+    });
   },
 });
 
 export const { setDebouncedText } = autoSaveSlice.actions;
+export { loadInitialText };
 export default autoSaveSlice.reducer;

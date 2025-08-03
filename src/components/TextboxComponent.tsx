@@ -3,7 +3,10 @@ import './TextboxComponent.css';
 import { useDebounce } from '../hooks/useDebounce';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../store/store';
-import { setDebouncedText } from '../store/reducers/auto-save.reducer';
+import {
+  setDebouncedText,
+  loadInitialText,
+} from '../store/reducers/auto-save.reducer';
 
 const TextboxComponent: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -15,6 +18,7 @@ const TextboxComponent: React.FC = () => {
   // 1. 컴포넌트 마운트 시 실행 (한 번만)
   useEffect(() => {
     isFirstRender.current = true;
+    dispatch(loadInitialText());
     console.log('TextboxComponent 마운트');
 
     // 컴포넌트 언마운트 시 정리 작업
@@ -22,6 +26,10 @@ const TextboxComponent: React.FC = () => {
       console.log('TextboxComponent 언마운트');
     };
   }, []); // 빈 의존성 배열 = 마운트/언마운트 시에만 실행
+
+  useEffect(() => {
+    setText(debounced_text);
+  }, [debounced_text]);
 
   useEffect(() => {
     textRef.current = text;
@@ -32,14 +40,8 @@ const TextboxComponent: React.FC = () => {
     dispatch(setDebouncedText(textRef.current));
   }, []); // 의존성 배열을 비워서 안정적 유지
 
-  useDebounce(
-    debouncedSave,
-    1000,
-    !isFirstRender.current, // 첫 렌더링이 아닐 때만 활성화
-    [text]
-  );
+  useDebounce(debouncedSave, 1000, !isFirstRender.current, [text]);
 
-  // 첫 렌더링 완료 후 플래그 업데이트
   useEffect(() => {
     isFirstRender.current = false;
   }, []);
