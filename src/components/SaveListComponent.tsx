@@ -4,6 +4,7 @@ import indexedDBRepository from '../db/indexed-db.repository';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../store/store';
+import ListComponent from './ListComponent';
 
 const SaveListComponent: React.FC = () => {
   const isFirstRender = useRef(true);
@@ -31,26 +32,11 @@ const SaveListComponent: React.FC = () => {
 
   return (
     <div className="save-list-container">
-      <div>
-        <h3>IndexedDB 저장 목록</h3>
-        <ul>
-          {saveList?.map((text, index) => (
-            <li key={index}>
-              {index + 1}. {text}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <h3>IndexedDB에서 서버로 전송된 목록</h3>
-        <ul>
-          {serverSaveList.map((text, index) => (
-            <li key={index}>
-              {index + 1}. {text}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ListComponent title="IndexedDB에 저장된 목록" list={saveList || []} />
+      <ListComponent
+        title="IndexedDB에서 서버로 전송된 목록"
+        list={serverSaveList}
+      />
     </div>
   );
 };
