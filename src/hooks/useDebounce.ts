@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
+import type { DependencyList } from 'react';
 import _ from 'lodash';
 
-export const useDebounce = (
-  callback: (...args: any[]) => void,
+export const useDebounce = <T extends any[]>(
+  callback: (...args: T) => void,
   delay: number,
-  active: boolean,
-  states: any[]
+  dependencies: DependencyList
 ) => {
   const debounceRef = useRef<_.DebouncedFunc<(...args: any[]) => void> | null>(
     null
@@ -24,9 +24,8 @@ export const useDebounce = (
   }, [delay]);
 
   useEffect(() => {
-    if (!active || !debounceRef.current) {
-      return;
+    if (debounceRef.current) {
+      debounceRef.current();
     }
-    debounceRef.current();
-  }, states);
+  }, dependencies);
 };

@@ -16,10 +16,7 @@ export const useAutoSave = () => {
     dispatch(setServerSaveText(serverText));
   }, []);
 
-  useDebounce(
-    debouncedSave,
-    environment.features.debounceDelayForServerSync,
-    true,
-    [debounced_text]
-  );
+  useDebounce(debouncedSave, environment.features.debounceDelayForServerSync, [
+    debounced_text,
+  ]);
 };

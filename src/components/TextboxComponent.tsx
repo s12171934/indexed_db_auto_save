@@ -42,12 +42,7 @@ const TextboxComponent: React.FC = () => {
     dispatch(setDebouncedText(textRef.current));
   }, []); // 의존성 배열을 비워서 안정적 유지
 
-  useDebounce(
-    debouncedSave,
-    environment.features.debounceDelay,
-    !isFirstRender.current,
-    [text]
-  );
+  useDebounce(debouncedSave, environment.features.debounceDelay, [text]);
 
   useAutoSave();
 
