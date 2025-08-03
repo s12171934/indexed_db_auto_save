@@ -7,6 +7,7 @@ import {
   setDebouncedText,
   loadInitialText,
 } from '../store/reducers/auto-save.reducer';
+import { environment } from '../environments/environment';
 
 const TextboxComponent: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -40,7 +41,12 @@ const TextboxComponent: React.FC = () => {
     dispatch(setDebouncedText(textRef.current));
   }, []); // 의존성 배열을 비워서 안정적 유지
 
-  useDebounce(debouncedSave, 1000, !isFirstRender.current, [text]);
+  useDebounce(
+    debouncedSave,
+    environment.features.debounceDelay,
+    !isFirstRender.current,
+    [text]
+  );
 
   useEffect(() => {
     isFirstRender.current = false;

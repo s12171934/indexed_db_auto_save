@@ -1,4 +1,5 @@
 import { db } from './indexed-db';
+import { environment } from '../environments/environment';
 
 interface IndexedDBRepository {
   getText: () => Promise<string>;
@@ -20,9 +21,9 @@ const indexedDBRepository: IndexedDBRepository = {
     const list = await db.text.toArray();
     return list.map(item => item.text).reverse();
   },
-  removeOldData: async () => {
+  removeOldData: async (maxSaves: number = environment.database.maxSaves) => {
     const list = await db.text.toArray();
-    const oldData = list.slice(0, list.length - 10);
+    const oldData = list.slice(0, list.length - maxSaves);
     await db.text.bulkDelete(oldData.map(item => (item as any).id));
   },
 };
